@@ -1,0 +1,17 @@
+stages:
+  - build
+
+build-image:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - docker:dind
+  before_script:
+    - cat $CONFIG_ENV
+    - cat $CONFIG_ENV > ./.env
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+  script:
+    - docker build -t $IMAGE_TAG .
+    - docker tag $IMAGE_TAG $CI_REGISTRY_IMAGE:latest
+    - docker push $IMAGE_TAG
+    - docker push $CI_REGISTRY_IMAGE:latest
