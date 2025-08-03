@@ -19,7 +19,6 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=builder /app/vpnconsumer .
-COPY --from=builder /app/.env .env
 
 RUN apk add --no-cache ca-certificates
 
