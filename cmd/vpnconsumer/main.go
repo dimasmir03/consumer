@@ -20,6 +20,8 @@ type CreateUserTask struct {
 	UUID     string `json:"uuid"`
 	Flow     string `json:"flow"`
 	Pbk      string `json:"pbk"`
+	SID      string `json:"sid"`
+	SPX      string `json:"spx"`
 }
 
 type Panel struct {
