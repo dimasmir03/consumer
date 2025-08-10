@@ -159,9 +159,6 @@ func handleMessage(client *client3xui.Client) func(d rabbitmq.Delivery) rabbitmq
 			Enable: true,
 			TgID:   uint(task.UserID),
 			Flow:   task.Flow,
-			Pbk:    task.Pbk,
-			SID:    task.SID,
-			SPX:    task.SPX,
 		}}
 
 		res1, err := client.AddClient(context.Background(), uint(inboundID), users)
