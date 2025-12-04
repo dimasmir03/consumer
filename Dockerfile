@@ -1,10 +1,10 @@
 # consumer/Dockerfile
 
-FROM golang:1.24.3-alpine as builder
+FROM golang:1.24.6-alpine3.21 as builder
 
 WORKDIR /app
 
-RUN apk add --no-cache git
+RUN apk add --no-cache git curl
 
 COPY go.mod go.sum ./
 RUN go mod download

@@ -15,13 +15,14 @@ import (
 )
 
 type CreateUserTask struct {
-	UserID   int64  `json:"user_id"`
-	Username string `json:"username"`
-	UUID     string `json:"uuid"`
-	Flow     string `json:"flow"`
-	Pbk      string `json:"pbk"`
-	SID      string `json:"sid"`
-	SPX      string `json:"spx"`
+	UserID     int64  `json:"user_id"`
+	Username   string `json:"username"`
+	UUID       string `json:"uuid"`
+	Flow       string `json:"flow"`
+	Pbk        string `json:"pbk"`
+	SID        string `json:"sid"`
+	SPX        string `json:"spx"`
+	Encryption string `json:"encryption"`
 }
 
 type Panel struct {
@@ -38,6 +39,8 @@ type Config struct {
 	}
 	Panel Panel
 }
+
+var config Config
 
 func main() {
 	config, err := loadConfig()
@@ -116,10 +119,19 @@ func createConsumer(conn *rabbitmq.Conn, config Config) (*rabbitmq.Consumer, err
 		rabbitmq.WithConsumerOptionsExchangeName(config.RabbitMQ.ExchangeName),
 		rabbitmq.WithConsumerOptionsExchangeDeclare,
 		rabbitmq.WithConsumerOptionsExchangeKind("fanout"),
+		rabbitmq.WithConsumerOptionsQueueDurable,
 		rabbitmq.WithConsumerOptionsBinding(rabbitmq.Binding{
 			RoutingKey:     "",
 			BindingOptions: rabbitmq.BindingOptions{Declare: true},
 		}),
+		// rabbitmq.WithConsumerOptionsQueueArgs(
+		// 	rabbitmq.QueueOptions{
+		// 		AutoDelete: false,
+		// }
+		// rabbitmq.Table{
+		// "auto": false,
+		// }
+		// ),
 	)
 }
 
@@ -132,6 +144,27 @@ func handleMessage(client *client3xui.Client) func(d rabbitmq.Delivery) rabbitmq
 			return rabbitmq.NackRequeue
 		}
 		log.Printf("📥 Получена задача: %+v", task)
+
+		// // /////////
+		// log.Printf("My test")
+		// log.Printf(config.Panel.URL + "/panel/api/inbounds/list")
+		// req, err := http.NewRequest("GET", config.Panel.URL+"/panel/api/inbounds/list", nil)
+		// if err != nil {
+		// 	return rabbitmq.NackDiscard
+		// }
+		// req.AddCookie(&http.Cookie{Name: "3-ui", Value: "MTc1Nzg0NjY3OXxEWDhFQVFMX2dBQUJFQUVRQUFCbF80QUFBUVp6ZEhKcGJtY01EQUFLVEU5SFNVNWZWVk5GVWhoNExYVnBMMlJoZEdGaVlYTmxMMjF2WkdWc0xsVnpaWExfZ1FNQkFRUlZjMlZ5QWYtQ0FBRURBUUpKWkFFRUFBRUlWWE5sY201aGJXVUJEQUFCQ0ZCaGMzTjNiM0prQVF3QUFBQkxfNEpJQVFJQkJXRmtiV2x1QVR3a01tRWtNVEFrUW01QlZYVjVSVGRJY1c5aE5sWnBkbmhFY0U5R2RXeDFUVTFoVEM5Sk4wVkNWbHBhUTB0cGNHaE5TREpQV0hWV1R6Qk5VbkVBfOxzGIyhSi4r6Em6j2a3"})
+		// resp, err := http.DefaultClient.Do(req)
+		// if err != nil {
+		// 	log.Printf("❌ Панель вернула ошибку: %s", err)
+		// }
+		//
+		// if err == nil && resp.StatusCode != http.StatusOK {
+		// 	log.Printf("❌ Панель вернула ошибку: %s", resp.Status)
+		//
+		// }
+		// log.Printf("My test end")
+		// // /////////
+
 		res, err := client.GetInbounds(context.Background())
 		if err != nil {
 			log.Printf("❌ Ошибка при получении инбаундов: %v", err)
@@ -147,7 +180,7 @@ func handleMessage(client *client3xui.Client) func(d rabbitmq.Delivery) rabbitmq
 		}
 
 		if len(res.Obj) > 1 {
-			log.Printf("❌ Панель вернула неодну инбаунд")
+			log.Printf("❌ Панель вернула не один баунд")
 			return rabbitmq.NackDiscard
 		}
 
@@ -171,6 +204,7 @@ func handleMessage(client *client3xui.Client) func(d rabbitmq.Delivery) rabbitmq
 			return rabbitmq.NackDiscard
 		}
 		log.Printf("✅ Клиент %s успешно добавлен!", task.Username)
+		// defer resp.Body.Close()
 		return rabbitmq.Ack
 	}
 }
