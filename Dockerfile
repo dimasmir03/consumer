@@ -20,6 +20,4 @@ WORKDIR /app
 
 COPY --from=builder /app/vpnconsumer .
 
-RUN apk add --no-cache ca-certificates
-
 CMD ["./vpnconsumer"]
