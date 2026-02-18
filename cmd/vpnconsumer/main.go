@@ -9,20 +9,32 @@ import (
 	"log"
 	"os"
 
-	"github.com/digilolnet/client3xui"
+	"github.com/dimasmir03/client3xui"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/wagslane/go-rabbitmq"
 )
 
 type CreateUserTask struct {
-	UserID     int64  `json:"user_id"`
-	Username   string `json:"username"`
-	UUID       string `json:"uuid"`
-	Flow       string `json:"flow"`
-	Pbk        string `json:"pbk"`
-	SID        string `json:"sid"`
-	SPX        string `json:"spx"`
-	Encryption string `json:"encryption"`
+	UserID   int64  `json:"user_id"`
+	Username string `json:"username"`
+
+	Protocol string `json:"protocol"`
+
+	// vless params
+	UUID       string `json:"uuid,omitempty"`
+	PBK        string `json:"pbk,omitempty"`
+	SID        string `json:"sid,omitempty"`
+	SPX        string `json:"spx,omitempty"`
+	Flow       string `json:"flow,omitempty"`
+	Encryption string `json:"encryption,omitempty"`
+
+	// trojan params
+	Type     string `json:"type,omitempty"`
+	Security string `json:"security,omitempty"`
+	Fp       string `json:"fp,omitempty"`
+	Alpn     string `json:"alpn,omitempty"`
+	Sni      string `json:"sni,omitempty"`
+	Password string `json:"password,omitempty"`
 }
 
 type Panel struct {
@@ -183,24 +195,34 @@ func handleMessage(client *client3xui.Client) func(d rabbitmq.Delivery) rabbitmq
 			log.Printf("❌ Панель вернула не один баунд")
 			return rabbitmq.NackDiscard
 		}
+		inbound := res.Obj[0]
+		inboundID := inbound.ID
+		users := []client3xui.ClientInterface{}
+		switch inbound.Protocol {
+		case "vless":
+			users = append(users, client3xui.XrayClient{
+				ID:     task.UUID,
+				Email:  task.Username,
+				Enable: true,
+				TgID:   uint(task.UserID),
+				Flow:   task.Flow,
+			})
+		case "trojan":
+			users = append(users, client3xui.TrojanClient{
+				Password: task.Password,
+				Email:    task.Username,
+				Enable:   true,
+				TgID:     uint(task.UserID),
+			})
+		}
 
-		inboundID := res.Obj[0].ID
-
-		users := []client3xui.XrayClient{{
-			ID:     task.UUID,
-			Email:  task.Username,
-			Enable: true,
-			TgID:   uint(task.UserID),
-			Flow:   task.Flow,
-		}}
-
-		res1, err := client.AddClient(context.Background(), uint(inboundID), users)
+		res1, err := client.AddAnyClient(context.Background(), uint(inboundID), users)
 		if err != nil {
 			log.Printf("❌ Ошибка при добавлении клиента %s (%d): %v", task.Username, task.UserID, err)
 			return rabbitmq.NackDiscard
 		}
 		if !res1.Success {
-			log.Printf("❌ Панель вернула ошибку для %s (%d): %s", task.Username, task.UserID, res.Msg)
+			log.Printf("❌ Панель вернула ошибку для %s (%d): %s", task.Username, task.UserID, res1.Msg)
 			return rabbitmq.NackDiscard
 		}
 		log.Printf("✅ Клиент %s успешно добавлен!", task.Username)

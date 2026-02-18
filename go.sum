@@ -1,8 +1,8 @@
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
 github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
-github.com/digilolnet/client3xui v0.0.0-20250910222816-13ef2c24f3da h1:Sug2ijrHAApSjjm1yufqoqtozYXvsLFtCw1QZbA5xZM=
-github.com/digilolnet/client3xui v0.0.0-20250910222816-13ef2c24f3da/go.mod h1:tRVEwxL0MZ6mSAfOKiPZK6aYzTfEb4ERJtvohoaV9xI=
+github.com/dimasmir03/client3xui v0.0.0-20260218123933-cc6173a59e25 h1:imAmb0AWhvhQJMMjNn2FmU2dLSLiCRPrVjdZvt17+oY=
+github.com/dimasmir03/client3xui v0.0.0-20260218123933-cc6173a59e25/go.mod h1:VRWzqlwtbcF36KN/vTZKHYjSzUTbJK4ifWGPM82CQ9Q=
 github.com/ilyakaznacheev/cleanenv v1.5.0 h1:0VNZXggJE2OYdXE87bfSSwGxeiGt9moSR2lOrsHHvr4=
 github.com/ilyakaznacheev/cleanenv v1.5.0/go.mod h1:a5aDzaJrLCQZsazHol1w8InnDcOX0OColm64SlIi6gk=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
